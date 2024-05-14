@@ -13,6 +13,8 @@ return {
   dependencies = {
     -- Creates a beautiful debugger UI
     'rcarriga/nvim-dap-ui',
+    -- dep for dap ui
+    'nvim-neotest/nvim-nio',
 
     -- Installs the debug adapters for you
     'williamboman/mason.nvim',
@@ -29,6 +31,7 @@ return {
       -- Makes a best effort to setup the various debuggers with
       -- reasonable debug configurations
       automatic_setup = true,
+      automatic_installation = true,
 
       -- You can provide additional configuration to the handlers,
       -- see mason-nvim-dap README for more information
@@ -43,6 +46,7 @@ return {
     }
 
     -- Basic debugging keymaps, feel free to change to your liking!
+    vim.keymap.set('n', '<F5>', dap.continue, { desc = 'Debug: Start/Continue' })
     vim.keymap.set('n', '<F5>', dap.continue, { desc = 'Debug: Start/Continue' })
     vim.keymap.set('n', '<F1>', dap.step_into, { desc = 'Debug: Step Into' })
     vim.keymap.set('n', '<F2>', dap.step_over, { desc = 'Debug: Step Over' })
@@ -82,6 +86,9 @@ return {
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
     -- Install golang specific config
+
+    vim.keymap.set('n', '<leader>td', ":lua require('dap-go').debug_test()<CR>", { desc = 'Debug: Debug test near cursor' })
+
     require('dap-go').setup()
   end,
 }

@@ -99,7 +99,7 @@ vim.g.maplocalleader = ' '
 vim.opt.number = true
 -- You can also add relative line numbers, for help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -183,6 +183,14 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+--
+-- NOTE: commit lint command
+vim.keymap.set('n', '<leader>c', '<cmd>:%w !commitlint -g ~/commitlint.config.js<CR>', { desc = 'Run Commitlint on git commit' })
+
+-- NOTE: Go quick test and compile key maps
+-- vim.keymap.set('n', '<leader>gt', '<cmd>:!go test -cover -run ".*Pipe.*" <CR>', { desc = 'Run [G] [T]est on open file' })
+vim.keymap.set('n', '<leader>gt', '<cmd>:!go test -cover -run ".*Transfer.*" <CR>', { desc = 'Run [G] [T]est on open file' })
+-- vim.keymap.set('n', '<leader>gt', '<cmd>:! go test <CR>', { desc = 'Run [G] [T]est on open file' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -250,6 +258,62 @@ require('lazy').setup {
         changedelete = { text = '~' },
       },
     },
+    config = function()
+      require('gitsigns').setup {
+        on_attach = function(bufnr)
+          local gitsigns = require 'gitsigns'
+
+          local function map(mode, l, r, opts)
+            opts = opts or {}
+            opts.buffer = bufnr
+            vim.keymap.set(mode, l, r, opts)
+          end
+
+          -- Navigation
+          map('n', ']c', function()
+            if vim.wo.diff then
+              vim.cmd.normal { ']c', bang = true }
+            else
+              gitsigns.nav_hunk 'next'
+            end
+          end)
+
+          map('n', '[c', function()
+            if vim.wo.diff then
+              vim.cmd.normal { '[c', bang = true }
+            else
+              gitsigns.nav_hunk 'prev'
+            end
+          end)
+
+          -- Actions
+          -- map('n', '<leader>hs', gitsigns.stage_hunk)
+          -- map('n', '<leader>hr', gitsigns.reset_hunk)
+          -- map('v', '<leader>hs', function()
+          --   gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
+          -- end)
+          -- map('v', '<leader>hr', function()
+          --   gitsigns.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
+          -- end)
+          -- map('n', '<leader>hS', gitsigns.stage_buffer)
+          -- map('n', '<leader>hu', gitsigns.undo_stage_hunk)
+          -- map('n', '<leader>hR', gitsigns.reset_buffer)
+          -- map('n', '<leader>hp', gitsigns.preview_hunk)
+          -- map('n', '<leader>hb', function()
+          --   gitsigns.blame_line { full = true }
+          -- end)
+          -- map('n', '<leader>tb', gitsigns.toggle_current_line_blame)
+          -- map('n', '<leader>hd', gitsigns.diffthis)
+          -- map('n', '<leader>hD', function()
+          --   gitsigns.diffthis '~'
+          -- end)
+          -- map('n', '<leader>td', gitsigns.toggle_deleted)
+
+          -- Text object
+          -- map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+        end,
+      }
+    end,
   },
 
   -- NOTE: Plugins can also be configured to run lua code when they are loaded.
@@ -373,6 +437,14 @@ require('lazy').setup {
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
+      vim.keymap.set('n', '<leader>sdf', function()
+        require('telescope.builtin').find_files {
+          prompt_title = '~ dotfiles ~',
+          cwd = '~/dotfiles/.dotfiles/',
+          hidden = true,
+        }
+      end, { desc = '[S]earch [D]ot [F]iles' })
+
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to telescope to change theme, layout, etc.
@@ -447,6 +519,8 @@ require('lazy').setup {
           -- to define small helper and utility functions so you don't have to repeat yourself
           -- many times.
           --
+          -- TODO thiws is a test
+          --
           -- In this case, we create a function that lets us more easily define mappings specific
           -- for LSP related items. It sets the mode, buffer and description for us each time.
           local map = function(keys, func, desc)
@@ -472,7 +546,12 @@ require('lazy').setup {
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
-          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+          -- map('<leader>ds', function() require('telescope.builtin').lsp_document_symbols end, '[D]ocument [S]ymbols')
+          vim.keymap.set('n', '<leader>ds', function()
+            require('telescope.builtin').lsp_document_symbols {
+              symbol_width = 50,
+            }
+          end, { buffer = event.buf, desc = 'LSP: [D]ocument [S]ymbols' })
 
           -- Fuzzy find all the symbols in your current workspace
           --  Similar to document symbols, except searches over your whole project.
@@ -532,7 +611,21 @@ require('lazy').setup {
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
-        -- gopls = {},
+        gopls = {
+          settings = {
+            gopls = {
+              completeUnimported = true,
+              usePlaceholders = true,
+              -- gofumpt = true,
+              -- staticcheck = true,
+              golangcilint = true,
+              analyses = {
+                unusedparams = true,
+                unreachable = true,
+              },
+            },
+          },
+        },
         -- pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -543,6 +636,41 @@ require('lazy').setup {
         -- But for many setups, the LSP (`tsserver`) will work just fine
         -- tsserver = {},
         --
+        -- eslint = {
+        --   cmd = { 'vscode-eslint-language-server', '--stdio' },
+        --   settings = {
+        --     codeAction = {
+        --       disableRuleComment = {
+        --         enable = true,
+        --         location = 'separateLine',
+        --       },
+        --       showDocumentation = {
+        --         enable = true,
+        --       },
+        --     },
+        --     codeActionOnSave = {
+        --       enable = false,
+        --       mode = 'all',
+        --     },
+        --     experimental = {
+        --       useFlatConfig = false,
+        --     },
+        --     format = true,
+        --     nodePath = '',
+        --     onIgnoredFiles = 'off',
+        --     problems = {
+        --       shortenToSingleLine = false,
+        --     },
+        --     quiet = false,
+        --     rulesCustomizations = {},
+        --     run = 'onType',
+        --     useESLintClass = false,
+        --     validate = 'on',
+        --     workingDirectory = {
+        --       mode = 'location',
+        --     },
+        --   },
+        -- },
 
         lua_ls = {
           -- cmd = {...},
@@ -647,17 +775,19 @@ require('lazy').setup {
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'hrsh7th/cmp-buffer',
 
       -- If you want to add a bunch of pre-configured snippets,
       --    you can use this plugin to help you. It even has snippets
       --    for various frameworks/libraries/etc. but you will have to
       --    set up the ones that are useful for you.
-      -- 'rafamadriz/friendly-snippets',
+      'rafamadriz/friendly-snippets',
     },
     config = function()
       -- See `:help cmp`
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
+      require('luasnip.loaders.from_vscode').lazy_load()
       luasnip.config.setup {}
 
       cmp.setup {
@@ -711,6 +841,7 @@ require('lazy').setup {
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
+          -- { name = 'buffer' },
         },
       }
     end,
@@ -770,6 +901,7 @@ require('lazy').setup {
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
+      require('mini.pairs').setup()
     end,
   },
 
@@ -781,7 +913,7 @@ require('lazy').setup {
 
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup {
-        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc' },
+        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'go' },
         -- Autoinstall languages that are not installed
         auto_install = true,
         highlight = { enable = true },
@@ -806,7 +938,7 @@ require('lazy').setup {
   --  Here are some example plugins that I've included in the kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
@@ -814,8 +946,11 @@ require('lazy').setup {
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+--
+--
+--
