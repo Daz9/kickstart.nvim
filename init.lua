@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -189,6 +189,14 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- NOTE: commit lint command
+vim.keymap.set('n', '<leader>c', '<cmd>:%w !commitlint -g ~/commitlint.config.js<CR>', { desc = 'Run Commitlint on git commit' })
+
+-- NOTE: Go quick test and compile key maps
+-- vim.keymap.set('n', '<leader>gt', '<cmd>:!go test -cover -run ".*Pipe.*" <CR>', { desc = 'Run [G] [T]est on open file' })
+-- vim.keymap.set('n', '<leader>gt', '<cmd>:!go test -cover -run ".*Transfer.*" <CR>', { desc = 'Run [G] [T]est on open file' })
+-- vim.keymap.set('n', '<leader>gt', '<cmd>:! go test <CR>', { desc = 'Run [G] [T]est on open file' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -412,6 +420,14 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
+      vim.keymap.set('n', '<leader>sdf', function()
+        require('telescope.builtin').find_files {
+          prompt_title = '~ dotfiles ~',
+          cwd = '~/dotfiles/.dotfiles/',
+          hidden = true,
+        }
+      end, { desc = '[S]earch [D]ot [F]iles' })
+
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
@@ -615,7 +631,10 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
-        -- gopls = {},
+        gopls = {
+          completeUnimported = true,
+          usePlaceholders = true,
+        },
         -- pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -626,6 +645,29 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
         --
+        --
+        golangci_lint_ls = {
+          init_options = {
+            command = {
+              'golangci-lint',
+              'run',
+              '--allow-parallel-runners',
+              '--disable-all',
+              '--enable=errcheck',
+              '--enable=gocritic',
+              '--enable=gosimple',
+              '--enable=govet',
+              '--enable=ineffassign',
+              '--enable=revive',
+              '-enable=staticcheck',
+              '--enable=typecheck',
+              '--enable=unused',
+              '--out-format',
+              'json',
+              '--issues-exit-code=1',
+            },
+          },
+        },
 
         lua_ls = {
           -- cmd = {...},
@@ -926,18 +968,18 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
