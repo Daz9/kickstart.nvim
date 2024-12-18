@@ -195,10 +195,8 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- NOTE: commit lint command
 vim.keymap.set('n', '<leader>c', '<cmd>:%w !commitlint -g ~/commitlint.config.js<CR>', { desc = 'Run Commitlint on git commit' })
 
--- NOTE: Go quick test and compile key maps
--- vim.keymap.set('n', '<leader>gt', '<cmd>:!go test -cover -run ".*Pipe.*" <CR>', { desc = 'Run [G] [T]est on open file' })
--- vim.keymap.set('n', '<leader>gt', '<cmd>:!go test -cover -run ".*Transfer.*" <CR>', { desc = 'Run [G] [T]est on open file' })
--- vim.keymap.set('n', '<leader>gt', '<cmd>:! go test <CR>', { desc = 'Run [G] [T]est on open file' })
+-- NOTE: oil file command
+vim.keymap.set('n', '-', '<cmd>Oil<CR>', { desc = 'Run Commitlint on git commit' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
