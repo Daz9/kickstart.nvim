@@ -878,15 +878,25 @@ require('lazy').setup({
           -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
           --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
         },
+        -- DEBUGGING
+        -- formatting = {
+        --   format = function(entry, vim_item)
+        --     -- Set the menu field to the source name
+        --     vim_item.menu = '[' .. entry.source.name .. ']'
+        --     return vim_item
+        --   end,
+        -- },
+        preselect = cmp.PreselectMode.None,
         sources = {
           {
             name = 'lazydev',
             -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
             group_index = 0,
           },
-          { name = 'nvim_lsp' },
-          { name = 'luasnip' },
-          { name = 'path' },
+          { name = 'nvim_lsp', priority = 1000 },
+          { name = 'luasnip', priority = 750 },
+          { name = 'path', priority = 500 },
+          { name = 'copilot', priority = 200 },
         },
       }
     end,
