@@ -194,30 +194,6 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
--- quick fix:
--- Open the quickfix list
--- vim.keymap.set('n', '<leader>qo', ':copen<CR>', { noremap = true, silent = true, desc = 'Open quickfix list' })
--- Close the quickfix list
--- vim.keymap.set('n', '<leader>qc', ':cclose<CR>', { noremap = true, silent = true, desc = 'Close quickfix list' })
--- Navigate to the next item in the quickfix list
--- vim.keymap.set('n', '<M-j>', ':cnext<CR>', { noremap = true, silent = true, desc = 'Next quickfix item' })
--- Navigate to the previous item in the quickfix list
--- vim.keymap.set('n', '<M-j>', ':cprev<CR>', { noremap = true, silent = true, desc = 'Previous quickfix item' })
--- Clear the quickfix list
--- vim.keymap.set('n', '<leader>qcl', ':call setqflist([])<CR>', { noremap = true, silent = true, desc = 'Clear quickfix list' })
--- Toggle the quickfix list
--- vim.keymap.set('n', '<leader>qt', function()
---   if vim.fn.empty(vim.fn.getqflist()) == 1 then
---     vim.cmd 'copen'
---   else
---     vim.cmd 'cclose'
---   end
--- end, { noremap = true, silent = true, desc = 'Toggle quickfix list' })
--- Jump to the first item in the quickfix list
--- vim.keymap.set('n', '<leader>qf', ':cfirst<CR>', { noremap = true, silent = true, desc = 'First quickfix item' })
--- Jump to the last item in the quickfix list
--- vim.keymap.set('n', '<leader>ql', ':clast<CR>', { noremap = true, silent = true, desc = 'Last quickfix item' })
-
 -- NOTE: commit lint command
 -- vim.keymap.set('n', '<leader>c', '<cmd>:%w !commitlint -g ~/commitlint.config.js<CR>', { desc = 'Run Commitlint on git commit' })
 
