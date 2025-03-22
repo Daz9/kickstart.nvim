@@ -136,11 +136,31 @@ return {
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
+    -- dap.adapters.go = {
+    --   type = 'server',
+    --   host = '172.23.0.3',
+    --   port = '2345',
+    -- }
+
     -- Install golang specific config
     require('dap-go').setup {
+      -- dap_configurations = {
+      --   {
+      --     type = 'go', -- tells nvim-dap-go which adapter to use
+      --     name = 'Attach Remote Dev Container',
+      --     request = 'attach', -- attach mode for an already running process
+      --     mode = 'remote', -- remote debugging mode
+      --     -- host = '172.23.0.3', -- adjust this IP based on your Docker networking (or use '127.0.0.1' if using port forwarding)
+      --     host = 'localhost', -- adjust this IP based on your Docker networking (or use '127.0.0.1' if using port forwarding)
+      --     port = '2345', -- must match the port Delve is listening on in the container
+      --     -- Uncomment and adjust the following if your file paths differ:
+      --     substitutePath = {
+      --       { from = '${workspaceFolder}', to = '/src/viya-risk-cirrus-core/' },
+      --     },
+      --   },
+      -- },
       delve = {
-        -- On Windows delve must be run attached or it crashes.
-        -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
+        -- On Windows, set detached = false to avoid crashes.
         detached = vim.fn.has 'win32' == 0,
       },
     }
